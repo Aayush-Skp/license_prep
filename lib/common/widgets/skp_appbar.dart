@@ -17,7 +17,6 @@ AppBar myAppbar({bool showBackBUtton = true, title}) {
               },
             )
             : Container(),
-
     title: Text(
       title ?? '',
       style: Theme.of(NavigationService.context).textTheme.titleMedium,

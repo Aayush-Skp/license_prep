@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
+import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -13,9 +15,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     Center(
-      child: Text(
-        "🏠 Home Screen",
-        style: TextStyle(fontSize: 24, color: Colors.white),
+      child: Consumer<DataProvider>(
+        builder: (context, provider, child) {
+          return Text(
+            (provider.responseModel?.data?.length ?? 0).toString(),
+            style: TextStyle(fontSize: 24, color: Colors.white),
+          );
+        },
       ),
     ),
     Center(
@@ -34,6 +40,17 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DataProvider>(
+        context,
+        listen: false,
+      ).fetchData(context: context);
     });
   }
 
