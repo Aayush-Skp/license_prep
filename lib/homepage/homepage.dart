@@ -3,6 +3,7 @@ import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/global_snackbar.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
+import 'package:license_entrance/pages/home_screen_widget.dart';
 import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -15,27 +16,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
-    Center(
-      child: Consumer<DataProvider>(
-        builder: (context, provider, child) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                (provider.responseModel?.data?.length ?? 0).toString(),
-                style: TextStyle(fontSize: 24, color: Colors.white),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  GlobalSnackbar.show("SHowing cool");
-                },
-                child: Text("My Button"),
-              ),
-            ],
-          );
-        },
-      ),
-    ),
+    HomeScreenWidget(),
     Center(
       child: Text(
         "🔍 Search Screen",
