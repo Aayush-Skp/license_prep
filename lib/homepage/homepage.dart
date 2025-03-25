@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
+import 'package:license_entrance/common/widgets/global_snackbar.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
 import 'package:provider/provider.dart';
 
@@ -17,9 +18,20 @@ class _MyHomePageState extends State<MyHomePage> {
     Center(
       child: Consumer<DataProvider>(
         builder: (context, provider, child) {
-          return Text(
-            (provider.responseModel?.data?.length ?? 0).toString(),
-            style: TextStyle(fontSize: 24, color: Colors.white),
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                (provider.responseModel?.data?.length ?? 0).toString(),
+                style: TextStyle(fontSize: 24, color: Colors.white),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  GlobalSnackbar.show("SHowing cool");
+                },
+                child: Text("My Button"),
+              ),
+            ],
           );
         },
       ),
