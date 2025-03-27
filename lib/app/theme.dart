@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomTheme {
   //static Color primaryColor = Color(0xFF1E201E);
   static Color primaryColor = Colors.grey.shade900;
-  static const Color secondaryColor = const Color(0xFF3C3D37);
+  static const Color secondaryColor = Color(0xFF3C3D37);
   static const Color primaryText = Colors.white;
   static const Color appBarColor = Colors.transparent;
   static const String mainLogo = 'assets/logo.png';

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
-import 'package:license_entrance/common/widgets/global_snackbar.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
 import 'package:license_entrance/pages/home_screen_widget.dart';
-import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -39,12 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DataProvider>(
-        context,
-        listen: false,
-      ).fetchData(context: context);
-    });
   }
 
   @override
@@ -55,9 +46,12 @@ class _MyHomePageState extends State<MyHomePage> {
       showBackButton: false,
       body: _screens[_selectedIndex],
       bottomNavBar: Container(
-        margin: EdgeInsets.only(bottom: 5),
+        margin: EdgeInsets.only(bottom: 0),
         child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(5),
+            topRight: Radius.circular(5),
+          ),
           child: BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(

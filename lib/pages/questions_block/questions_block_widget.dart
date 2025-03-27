@@ -4,10 +4,18 @@ import 'package:license_entrance/app/theme.dart';
 class QuestionBlockWidget extends StatefulWidget {
   final String question;
   final List<String> options;
+  final String correctAnswer;
+  final bool isSubmitted;
+  final String? selectedAnswer;
+  final Function(String?) onAnswerSelected;
   const QuestionBlockWidget({
     super.key,
     required this.options,
     required this.question,
+    required this.correctAnswer,
+    this.isSubmitted = false,
+    this.selectedAnswer,
+    required this.onAnswerSelected,
   });
 
   @override
@@ -19,7 +27,6 @@ class _QuestionBlockWidgetState extends State<QuestionBlockWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      // margin: EdgeInsets.only(top: 10),
       color: CustomTheme.secondaryColor,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -56,17 +63,46 @@ class _QuestionBlockWidgetState extends State<QuestionBlockWidget> {
             const SizedBox(height: 8),
             ...widget.options.map(
               (option) => RadioListTile<String>(
-                title: Text(option, style: TextStyle(color: Colors.white)),
+                title: Text(
+                  option,
+                  style: TextStyle(
+                    color:
+                        widget.isSubmitted
+                            ? (option == widget.correctAnswer
+                                ? Color(0xFF5cd44a)
+                                : Color(0xFFDCDCDE))
+                            : Colors.white,
+                  ),
+                ),
                 value: option,
-                groupValue: selectedOption,
-                onChanged: (value) {
-                  setState(() {
-                    selectedOption = value;
-                  });
-                },
+                groupValue: widget.selectedAnswer,
+                onChanged: widget.isSubmitted ? null : widget.onAnswerSelected,
                 activeColor: Colors.blue,
               ),
             ),
+            (widget.isSubmitted &&
+                    widget.selectedAnswer != widget.correctAnswer)
+                ? Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red.withAlpha(400),
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        widget.correctAnswer,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                : SizedBox.shrink(),
           ],
         ),
       ),

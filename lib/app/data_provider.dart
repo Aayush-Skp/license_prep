@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:license_entrance/common/models/response_model.dart';
+import 'package:license_entrance/common/shared_pref/shared_pref.dart';
+import 'package:license_entrance/common/widgets/global_snackbar.dart';
 import 'package:license_entrance/services/http_services.dart';
 
 class DataProvider extends ChangeNotifier {
@@ -9,29 +14,30 @@ class DataProvider extends ChangeNotifier {
 
   Response? responseModel;
   bool isLoading = false;
+  bool isOffline = false;
   String? errorMessage;
 
-  // DataProvider() {}
-
-  Future<List<Datum>> fetchData({
-    int pageNumber = 1,
-    required BuildContext context,
-  }) async {
+  Future<List<Datum>> fetchData({required BuildContext context}) async {
     isLoading = true;
+    isOffline = false;
     errorMessage = null;
     notifyListeners();
-
+    final pageNumber = await SharedPref.getPageNumber();
     try {
-      final jsonMap = await service.get(
-        endpointUrl: 'api/questions/page/$pageNumber',
-      );
+      log('-----------Fetching the page number $pageNumber----------');
+      final jsonMap = await service
+          .get(endpointUrl: 'api/questions/page/$pageNumber')
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw TimeoutException("Connection timeout");
+            },
+          );
       if (jsonMap.containsKey('error')) {
         errorMessage = jsonMap['error'];
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(errorMessage!)));
-          print(errorMessage);
+          isOffline = true;
+          GlobalSnackbar.show("Connection Problem!");
         }
         return [];
       } else {
@@ -40,16 +46,28 @@ class DataProvider extends ChangeNotifier {
           return responseModel!.data;
         } else {
           if (context.mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(responseModel!.message)));
+            GlobalSnackbar.show(responseModel!.message);
             return [];
           }
         }
         return [];
       }
+    } on TimeoutException {
+      isOffline = true;
+      errorMessage = "Server is not responding. Please try again later.";
+      GlobalSnackbar.show(errorMessage ?? 'Server Down!');
+      return [];
+    } on SocketException {
+      isOffline = true;
+      errorMessage = "No internet connection. Please check your network.";
+      if (context.mounted) {
+        GlobalSnackbar.show(errorMessage!);
+      }
+      return [];
     } catch (e) {
+      isOffline = true;
       errorMessage = e.toString();
+      GlobalSnackbar.show(errorMessage ?? 'Error Occured!');
       return [];
     } finally {
       isLoading = false;

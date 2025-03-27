@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/navigation/navigation_service.dart';
 import 'package:license_entrance/homepage/homepage.dart';
+import 'package:provider/provider.dart';
 
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({super.key});
@@ -14,6 +16,14 @@ class _MySplashScreenState extends State<MySplashScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        Provider.of<DataProvider>(
+          context,
+          listen: false,
+        ).fetchData(context: context);
+      }
+    });
     _navigateToMyScreen();
   }
 
@@ -29,11 +39,25 @@ class _MySplashScreenState extends State<MySplashScreen> {
     return Scaffold(
       backgroundColor: CustomTheme.primaryColor,
       body: Center(
-        child: Image.asset(
-          CustomTheme.mainLogo,
-          width: 150,
-          height: 150,
-          fit: BoxFit.contain,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 230,
+              height: 230,
+              child: CircularProgressIndicator(
+                strokeWidth: 6,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white38),
+                backgroundColor: Colors.white24,
+              ),
+            ),
+            Image.asset(
+              CustomTheme.mainLogo,
+              width: 150,
+              height: 150,
+              fit: BoxFit.contain,
+            ),
+          ],
         ),
       ),
     );
