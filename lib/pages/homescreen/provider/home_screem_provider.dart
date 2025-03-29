@@ -7,7 +7,9 @@ import 'package:license_entrance/common/widgets/global_snackbar.dart';
 
 class HomeScreenProvider extends ChangeNotifier {
   final DataProvider dataProvider;
-  HomeScreenProvider(this.dataProvider);
+  HomeScreenProvider(this.dataProvider) {
+    _initializeRemainingSeconds();
+  }
   late Timer _timer;
   int _remainingSeconds = 30;
   bool _isTimerRunning = false;
@@ -18,14 +20,18 @@ class HomeScreenProvider extends ChangeNotifier {
   int get remainingSeconds => _remainingSeconds;
   bool get isTimerRunning => _isTimerRunning;
 
-  void startTimer({Function? onTimerComplete}) {
+  Future<void> _initializeRemainingSeconds() async {
+    _remainingSeconds = await SharedPref.getTime();
+    notifyListeners();
+  }
+
+  void startTimer({Function? onTimerComplete}) async {
     if (_isTimerRunning) {
       _timer.cancel();
     }
-    _remainingSeconds = 30;
+    _remainingSeconds = await SharedPref.getTime();
     _isTimerRunning = true;
     _onTimerComplete = onTimerComplete;
-
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
@@ -55,11 +61,11 @@ class HomeScreenProvider extends ChangeNotifier {
     }
   }
 
-  void resetTimer() {
+  void resetTimer() async {
     if (_isTimerRunning) {
       _timer.cancel();
     }
-    _remainingSeconds = 30;
+    _remainingSeconds = await SharedPref.getTime();
     _isTimerRunning = false;
     notifyListeners();
   }

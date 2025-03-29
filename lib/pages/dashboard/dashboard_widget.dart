@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
 import 'package:license_entrance/pages/homescreen/home_screen_widget.dart';
+import 'package:license_entrance/pages/performance/performance_widget.dart';
 
 class DashBoardWidget extends StatefulWidget {
   const DashBoardWidget({super.key});
@@ -20,12 +21,7 @@ class _DashBoardWidgetState extends State<DashBoardWidget> {
         style: TextStyle(fontSize: 24, color: Colors.white),
       ),
     ),
-    Center(
-      child: Text(
-        "📊 Performance Screen",
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
-    ),
+    PerformanceWidget(),
   ];
   void _onItemTapped(int index) {
     setState(() {

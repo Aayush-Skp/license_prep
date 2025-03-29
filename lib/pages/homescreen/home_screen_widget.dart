@@ -19,15 +19,26 @@ class HomeScreenWidget extends StatefulWidget {
 
 class _HomeScreenWidgetState extends State<HomeScreenWidget> {
   final ScrollController _scrollController = ScrollController();
+  int _savedTime = 30;
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _loadSavedTime();
+  }
+
+  Future<void> _loadSavedTime() async {
+    _savedTime = await SharedPref.getTime();
+    if (mounted) {
+      setState(() {
+        _scrollToTop();
+        _startTimer();
+      });
+    }
   }
 
   void _startTimer() {
-    if (context.homeScreenProvider.remainingSeconds == 30 &&
+    if (context.homeScreenProvider.remainingSeconds == _savedTime &&
         !context.homeScreenProvider.isTimerRunning) {
       context.homeScreenProvider.startTimer(
         onTimerComplete: () {
