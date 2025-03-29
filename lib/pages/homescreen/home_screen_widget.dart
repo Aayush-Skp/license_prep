@@ -23,89 +23,40 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final timerProvider = context.homeScreenProvider;
-      if (timerProvider.remainingSeconds == 10 &&
-          !timerProvider.isTimerRunning) {
-        timerProvider.startTimer(
-          onTimerComplete: () {
-            _submit(isSkillable: true);
-          },
-        );
-      }
-    });
+    _startTimer();
   }
 
-  void _updateSelectedAnswer(int index, String? answer) {
-    setState(() {
-      context.dataProvider.selectedAnswers[index] = answer;
-    });
-  }
-
-  void _resetState() {
-    setState(() {
-      context.dataProvider.isSubmitted = false;
-      context.dataProvider.selectedAnswers.clear();
-    });
-  }
-
-  void _submit({bool isSkillable = false}) async {
-    if (context.dataProvider.selectedAnswers.length !=
-            context.dataProvider.responseModel?.data.length &&
-        !isSkillable) {
-      GlobalSnackbar.show(
-        "Please attempt all questions first",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
+  void _startTimer() {
+    if (context.homeScreenProvider.remainingSeconds == 30 &&
+        !context.homeScreenProvider.isTimerRunning) {
+      context.homeScreenProvider.startTimer(
+        onTimerComplete: () {
+          context.homeScreenProvider.submit(
+            isSkillable: true,
+            onScrollToTop: _scrollToTop,
+          );
+        },
       );
-      return;
     }
-    setState(() {
-      context.dataProvider.isSubmitted = true;
-    });
+  }
+
+  void _scrollToTop() {
     _scrollController.animateTo(
       0.0,
       duration: Duration(milliseconds: 1200),
       curve: Curves.easeInOut,
     );
-
-    int correctAnswers = 0;
-    int totalQuestions = context.dataProvider.responseModel?.data.length ?? 0;
-
-    for (int i = 0; i < totalQuestions; i++) {
-      final question = context.dataProvider.responseModel?.data[i];
-      if (question != null &&
-          context.dataProvider.selectedAnswers[i] == question.correctAnswer) {
-        correctAnswers++;
-      }
-    }
-    GlobalSnackbar.showCustomDialog(
-      title: 'Results',
-      content:
-          'You got $correctAnswers out of $totalQuestions questions correct!\n'
-          'Skipped questions: ${(10 - context.dataProvider.selectedAnswers.length).toString()}\n'
-          'Score: ${(correctAnswers / totalQuestions * 100).toStringAsFixed(2)}%',
-    );
-
-    Map<String, dynamic> result = {
-      'timestamp': DateTime.now().toIso8601String(),
-      'total_questions': totalQuestions,
-      'correct_answers': correctAnswers,
-      'score_percentage': (correctAnswers / totalQuestions * 100)
-          .toStringAsFixed(2),
-    };
-    await SharedPref.setResults(result);
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Consumer2<DataProvider, HomeScreenProvider>(
-        builder: (context, provider, timerProvider, child) {
+        builder: (context, dataProvider, homeScreenProvider, child) {
           List<Widget> questionWidgets = [];
-          if (provider.responseModel?.data != null) {
+          if (dataProvider.responseModel?.data != null) {
             questionWidgets =
-                provider.responseModel!.data.asMap().entries.map((entry) {
+                dataProvider.responseModel!.data.asMap().entries.map((entry) {
                   int index = entry.key;
                   final datum = entry.value;
                   RegExp regExp = RegExp(r'Q\d+:\s*(.*)');
@@ -115,21 +66,27 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                     options: datum.options,
                     question: question,
                     correctAnswer: datum.correctAnswer,
-                    isSubmitted: provider.isSubmitted,
-                    selectedAnswer: context.dataProvider.selectedAnswers[index],
+                    isSubmitted: homeScreenProvider.isSubmitted,
+                    selectedAnswer: homeScreenProvider.selectedAnswers[index],
                     onAnswerSelected:
-                        (value) => _updateSelectedAnswer(index, value),
+                        (value) => homeScreenProvider.updateSelectedAnswer(
+                          index,
+                          value,
+                        ),
                   );
                 }).toList();
           }
-          return provider.isLoading
+          return dataProvider.isLoading
               ? CommonLoadingWidget()
-              : provider.isOffline
+              : dataProvider.isOffline
               ? OfflinePage(
+                message: dataProvider.errorMessage.toString(),
                 onRefresh: () async {
+                  homeScreenProvider.resetTimer();
+                  _startTimer();
                   final currentContext = context;
                   if (currentContext.mounted) {
-                    provider.fetchData();
+                    dataProvider.fetchData();
                   }
                 },
               )
@@ -149,12 +106,12 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                               child: AppButtons(
                                 onClicked: () {
                                   GlobalSnackbar.show(
-                                    "You are currently on page no: ${provider.currentPageNo}",
+                                    "You are currently on page no: ${dataProvider.currentPageNo}",
                                     backgroundColor: Colors.white,
                                     textColor: Colors.black,
                                   );
                                 },
-                                title: provider.currentPageNo.toString(),
+                                title: dataProvider.currentPageNo.toString(),
                               ),
                             ),
                             SizedBox(width: 7),
@@ -162,28 +119,32 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                               flex: 4,
                               child: AppButtons(
                                 title:
-                                    provider.isSubmitted
+                                    homeScreenProvider.isSubmitted
                                         ? "Next Page"
                                         : 'Submit',
                                 onClicked: () async {
-                                  if (provider.isSubmitted) {
+                                  if (homeScreenProvider.isSubmitted) {
                                     final currentContext = context;
                                     await SharedPref.setPageNumber(
-                                      provider.currentPageNo + 1,
+                                      dataProvider.currentPageNo + 1,
                                     );
-                                    _resetState();
-                                    timerProvider.resetTimer();
-                                    timerProvider.startTimer(
+                                    homeScreenProvider.resetState();
+                                    homeScreenProvider.resetTimer();
+                                    homeScreenProvider.startTimer(
                                       onTimerComplete: () {
-                                        _submit(isSkillable: true);
+                                        homeScreenProvider.submit(
+                                          isSkillable: true,
+                                          onScrollToTop: _scrollToTop,
+                                        );
                                       },
                                     );
                                     if (currentContext.mounted) {
-                                      provider.fetchData();
+                                      dataProvider.fetchData();
                                     }
                                   } else {
-                                    timerProvider.pauseTimer();
-                                    _submit();
+                                    homeScreenProvider.submit(
+                                      onScrollToTop: _scrollToTop,
+                                    );
                                   }
                                 },
                               ),
@@ -207,7 +168,7 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
-                          timerProvider.getFormattedTime(),
+                          homeScreenProvider.getFormattedTime(),
                           style: TextStyle(color: Colors.black),
                         ),
                       ),

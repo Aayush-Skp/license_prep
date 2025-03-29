@@ -17,8 +17,6 @@ class DataProvider extends ChangeNotifier {
   bool isOffline = false;
   String? errorMessage;
   int currentPageNo = 1;
-  final Map<int, String?> selectedAnswers = {};
-  bool isSubmitted = false;
   final context = NavigationService.context;
 
   Future<List<Datum>> fetchData() async {
@@ -38,7 +36,7 @@ class DataProvider extends ChangeNotifier {
             },
           );
       if (jsonMap.containsKey('error')) {
-        errorMessage = jsonMap['error'];
+        errorMessage = "There is no Pages left!";
         if (context.mounted) {
           isOffline = true;
           GlobalSnackbar.show("Connection Problem!");
@@ -49,6 +47,9 @@ class DataProvider extends ChangeNotifier {
         if (responseModel!.status == 'success') {
           return responseModel!.data;
         } else {
+          if (responseModel!.status == 'failure') {
+            return [];
+          }
           if (context.mounted) {
             GlobalSnackbar.show(responseModel!.message);
             return [];
