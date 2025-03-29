@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/navigation/navigation_service.dart';
-import 'package:license_entrance/homepage/homepage.dart';
+import 'package:license_entrance/pages/dashboard/dashboard_widget.dart';
 import 'package:provider/provider.dart';
 
 class MySplashScreen extends StatefulWidget {
@@ -18,10 +18,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
-        Provider.of<DataProvider>(
-          context,
-          listen: false,
-        ).fetchData(context: context);
+        Provider.of<DataProvider>(context, listen: false).fetchData();
       }
     });
     _navigateToMyScreen();
@@ -30,7 +27,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
   void _navigateToMyScreen() async {
     await Future.delayed(const Duration(seconds: 3), () {});
     if (mounted) {
-      NavigationService.pushReplacement(page: MyHomePage());
+      NavigationService.pushReplacement(page: DashBoardWidget());
     }
   }
 

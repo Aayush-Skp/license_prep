@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
-import 'package:license_entrance/pages/home_screen_widget.dart';
+import 'package:license_entrance/pages/homescreen/home_screen_widget.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class DashBoardWidget extends StatefulWidget {
+  const DashBoardWidget({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<DashBoardWidget> createState() => _DashBoardWidgetState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _DashBoardWidgetState extends State<DashBoardWidget> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     HomeScreenWidget(),

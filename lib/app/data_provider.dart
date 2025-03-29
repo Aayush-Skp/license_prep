@@ -5,28 +5,32 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:license_entrance/common/models/response_model.dart';
+import 'package:license_entrance/common/navigation/navigation_service.dart';
 import 'package:license_entrance/common/shared_pref/shared_pref.dart';
 import 'package:license_entrance/common/widgets/global_snackbar.dart';
 import 'package:license_entrance/services/http_services.dart';
 
 class DataProvider extends ChangeNotifier {
   HttpService service = HttpService();
-
   Response? responseModel;
   bool isLoading = false;
   bool isOffline = false;
   String? errorMessage;
+  int currentPageNo = 1;
+  final Map<int, String?> selectedAnswers = {};
+  bool isSubmitted = false;
+  final context = NavigationService.context;
 
-  Future<List<Datum>> fetchData({required BuildContext context}) async {
+  Future<List<Datum>> fetchData() async {
     isLoading = true;
     isOffline = false;
     errorMessage = null;
     notifyListeners();
-    final pageNumber = await SharedPref.getPageNumber();
+    currentPageNo = await SharedPref.getPageNumber();
     try {
-      log('-----------Fetching the page number $pageNumber----------');
+      log('-----------Fetching the page number $currentPageNo----------');
       final jsonMap = await service
-          .get(endpointUrl: 'api/questions/page/$pageNumber')
+          .get(endpointUrl: 'api/questions/page/$currentPageNo')
           .timeout(
             const Duration(seconds: 10),
             onTimeout: () {

@@ -37,33 +37,48 @@ class GlobalSnackbar {
     required String title,
     required String content,
     String actionText = 'OK',
+    Color backgroundColor = CustomTheme.secondaryColor,
+    Color textColor = CustomTheme.primaryText,
   }) {
     final context = NavigationService.context;
 
-    showDialog(
+    showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => AlertDialog(
+      barrierLabel: "Custom Dialog",
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) => const SizedBox(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: AlertDialog(
+            backgroundColor: backgroundColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
             title: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
             content: Text(
               content,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: textColor,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 8,
@@ -78,9 +93,59 @@ class GlobalSnackbar {
                 ),
               ),
             ],
-            backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 6,
           ),
+        );
+      },
     );
   }
+
+  // static void showCustomDialog({
+  //   required String title,
+  //   required String content,
+  //   String actionText = 'OK',
+  //   Color backgroundColor = CustomTheme.secondaryColor,
+  //   Color textColor = CustomTheme.primaryText,
+  // }) {
+  //   final context = NavigationService.context;
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder:
+  //         (context) => AlertDialog(
+  //           backgroundColor: backgroundColor,
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           title: Text(
+  //             title,
+  //             style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+  //           ),
+  //           content: Text(
+  //             content,
+  //             style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+  //           ),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(),
+  //               style: TextButton.styleFrom(
+  //                 foregroundColor: textColor,
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 16,
+  //                   vertical: 8,
+  //                 ),
+  //               ),
+  //               child: Text(
+  //                 actionText.toUpperCase(),
+  //                 style: const TextStyle(
+  //                   fontWeight: FontWeight.w600,
+  //                   letterSpacing: 1.1,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //           elevation: 6,
+  //         ),
+  //   );
+  // }
 }

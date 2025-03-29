@@ -120,26 +120,6 @@ class NavigationService {
     );
   }
 
-  // Show dialog
-  static Future<T?> showCustomDialog<T>({
-    required String title,
-    required String content,
-    required List<Widget> actions,
-    Color? backgroundColor,
-  }) {
-    return showDialog(
-      context: currentContext!,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          backgroundColor: backgroundColor ?? const Color(0xFFD9D9D9),
-          actions: actions,
-        );
-      },
-    );
-  }
-
   static BuildContext get context =>
       navigatorKey.currentState!.overlay!.context;
 }

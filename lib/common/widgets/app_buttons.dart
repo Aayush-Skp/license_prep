@@ -1,34 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:license_entrance/app/theme.dart';
 
 class AppButtons extends StatelessWidget {
   final VoidCallback onClicked;
   final String title;
-  final IconData icon;
-
+  final Color? backgroundColor;
+  final Color? buttonColor;
   const AppButtons({
     super.key,
     required this.title,
-    required this.icon,
     required this.onClicked,
+    this.backgroundColor = CustomTheme.secondaryColor,
+    this.buttonColor = CustomTheme.primaryText,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        minimumSize: Size.fromHeight(56),
-        iconColor: Color(0xFFD9D9D9),
-        backgroundColor: const Color(0xFF3C3D37),
-        textStyle: TextStyle(fontSize: 20),
-      ),
       onPressed: onClicked,
-      child: Row(
-        children: [
-          Icon(icon, size: 28),
-          const SizedBox(width: 7),
-          Text(title, style: TextStyle(color: Colors.white)),
-        ],
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      child: Text(title, style: TextStyle(color: buttonColor)),
     );
   }
 }
