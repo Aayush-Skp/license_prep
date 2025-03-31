@@ -29,7 +29,6 @@ class HomeScreenProvider extends ChangeNotifier {
     if (_isTimerRunning) {
       _timer.cancel();
     }
-    _remainingSeconds = await SharedPref.getTime();
     _isTimerRunning = true;
     _onTimerComplete = onTimerComplete;
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -100,13 +99,14 @@ class HomeScreenProvider extends ChangeNotifier {
       );
       return;
     }
+    isSubmitted = true;
+    pauseTimer();
+    notifyListeners();
     if (dataProvider.isOffline) {
       resetTimer();
       return;
     }
-    pauseTimer();
-    isSubmitted = true;
-    notifyListeners();
+
     if (onScrollToTop != null) {
       onScrollToTop();
     }

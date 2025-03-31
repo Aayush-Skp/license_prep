@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
-import 'package:license_entrance/pages/homescreen/home_screen_widget.dart';
+import 'package:license_entrance/pages/dashboard/intial_page/initial_widget.dart';
 import 'package:license_entrance/pages/performance/performance_widget.dart';
 
 class DashBoardWidget extends StatefulWidget {
@@ -14,10 +14,11 @@ class DashBoardWidget extends StatefulWidget {
 class _DashBoardWidgetState extends State<DashBoardWidget> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
-    HomeScreenWidget(),
+    // HomeScreenWidget(),
+    InitialWidget(),
     Center(
       child: Text(
-        "🔍 Search Screen",
+        "📚 Library",
         style: TextStyle(fontSize: 24, color: Colors.white),
       ),
     ),
@@ -58,7 +59,7 @@ class _DashBoardWidgetState extends State<DashBoardWidget> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
                 activeIcon: Icon(Icons.search_rounded),
-                label: 'Search',
+                label: 'Library',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.bar_chart_outlined),

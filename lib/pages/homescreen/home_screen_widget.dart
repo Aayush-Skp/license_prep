@@ -5,6 +5,7 @@ import 'package:license_entrance/common/widgets/app_buttons.dart';
 import 'package:license_entrance/common/widgets/common_loading_widget.dart';
 import 'package:license_entrance/common/widgets/common_pages/offline_page.dart';
 import 'package:license_entrance/common/widgets/global_snackbar.dart';
+import 'package:license_entrance/common/widgets/page_wrapper.dart';
 import 'package:license_entrance/pages/homescreen/components/questions_block_widget.dart';
 import 'package:license_entrance/pages/homescreen/provider/home_screem_provider.dart';
 import 'package:license_entrance/utility/extension.dart';
@@ -19,33 +20,23 @@ class HomeScreenWidget extends StatefulWidget {
 
 class _HomeScreenWidgetState extends State<HomeScreenWidget> {
   final ScrollController _scrollController = ScrollController();
-  int _savedTime = 30;
 
   @override
   void initState() {
     super.initState();
-    _loadSavedTime();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTimer());
   }
 
-  Future<void> _loadSavedTime() async {
-    _savedTime = await SharedPref.getTime();
-    if (mounted) {
-      setState(() {
-        _scrollToTop();
-        _startTimer();
-      });
-    }
-  }
-
-  void _startTimer() {
-    if (context.homeScreenProvider.remainingSeconds == _savedTime &&
-        !context.homeScreenProvider.isTimerRunning) {
-      context.homeScreenProvider.startTimer(
+  void _startTimer({int? time}) async {
+    time ??= await SharedPref.getTime();
+    if (!mounted) return;
+    final provider = context.homeScreenProvider;
+    if (provider.remainingSeconds == time &&
+        !provider.isTimerRunning &&
+        !provider.isSubmitted) {
+      provider.startTimer(
         onTimerComplete: () {
-          context.homeScreenProvider.submit(
-            isSkillable: true,
-            onScrollToTop: _scrollToTop,
-          );
+          provider.submit(isSkillable: true, onScrollToTop: _scrollToTop);
         },
       );
     }
@@ -61,8 +52,10 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Consumer2<DataProvider, HomeScreenProvider>(
+    return PageWrapper(
+      title: "Comp Engineering",
+      showAppBar: true,
+      body: Consumer2<DataProvider, HomeScreenProvider>(
         builder: (context, dataProvider, homeScreenProvider, child) {
           List<Widget> questionWidgets = [];
           if (dataProvider.responseModel?.data != null) {
