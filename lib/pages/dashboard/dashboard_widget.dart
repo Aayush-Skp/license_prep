@@ -14,7 +14,6 @@ class DashBoardWidget extends StatefulWidget {
 class _DashBoardWidgetState extends State<DashBoardWidget> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
-    // HomeScreenWidget(),
     InitialWidget(),
     Center(
       child: Text(

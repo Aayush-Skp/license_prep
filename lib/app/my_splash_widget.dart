@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:license_entrance/app/data_provider.dart';
 import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/navigation/navigation_service.dart';
-import 'package:license_entrance/common/shared_pref/shared_pref.dart';
+// import 'package:license_entrance/common/shared_pref/shared_pref.dart';
 // import 'package:license_entrance/common/shared_pref/shared_pref.dart';
 import 'package:license_entrance/pages/dashboard/dashboard_widget.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +29,7 @@ class _MySplashScreenState extends State<MySplashScreen> {
 
   void _navigateToMyScreen() async {
     await Future.delayed(const Duration(seconds: 3), () {});
-    final mytime = await SharedPref.getTime();
+    // final mytime = await SharedPref.getTime();
     if (mounted) {
       NavigationService.pushReplacement(page: DashBoardWidget());
     }

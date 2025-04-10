@@ -10,6 +10,7 @@ class HttpService {
       final response = await http.get(Uri.parse('$baseUrl/$endpointUrl'));
       print('$response of endpoint $baseUrl/$endpointUrl ');
       if (response.statusCode == 200) {
+        print("sucessfuly fetched");
         return json.decode(response.body);
       } else {
         return {'error': 'Request failed with status: ${response.statusCode}'};
