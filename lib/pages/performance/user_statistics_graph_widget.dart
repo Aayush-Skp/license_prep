@@ -11,7 +11,12 @@ class UserStatisticsGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (results.isEmpty) {
-      return const Center(child: Text("No statistics available"));
+      return const Center(
+        child: Text(
+          "No statistics available",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
     }
 
     List<FlSpot> spots =

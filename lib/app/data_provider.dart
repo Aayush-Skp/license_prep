@@ -23,8 +23,8 @@ class DataProvider extends ChangeNotifier {
     isLoading = true;
     isOffline = false;
     errorMessage = null;
-    notifyListeners();
     currentPageNo = await SharedPref.getPageNumber();
+    notifyListeners();
     try {
       log('-----------Fetching the page number $currentPageNo----------');
       final jsonMap = await service

@@ -3,6 +3,7 @@ import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/widgets/page_wrapper.dart';
 import 'package:license_entrance/pages/dashboard/intial_page/initial_widget.dart';
 import 'package:license_entrance/pages/performance/performance_widget.dart';
+import 'package:license_entrance/pages/search/custom_browser.dart';
 
 class DashBoardWidget extends StatefulWidget {
   const DashBoardWidget({super.key});
@@ -15,12 +16,13 @@ class _DashBoardWidgetState extends State<DashBoardWidget> {
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     InitialWidget(),
-    Center(
-      child: Text(
-        "📚 Library",
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
-    ),
+    // Center(
+    //   child: Text(
+    //     "📚 Library",
+    //     style: TextStyle(fontSize: 24, color: Colors.white),
+    //   ),
+    // ),
+    CustomBrowser(initialUrl: 'https://google.com/'),
     PerformanceWidget(),
   ];
   void _onItemTapped(int index) {
@@ -37,8 +39,9 @@ class _DashBoardWidgetState extends State<DashBoardWidget> {
   @override
   Widget build(BuildContext context) {
     return PageWrapper(
+      padding: EdgeInsets.all(0),
       title: "",
-      useOwnAppBar: true,
+      useOwnAppBar: false,
       showBackButton: false,
       body: _screens[_selectedIndex],
       bottomNavBar: Container(
@@ -58,7 +61,7 @@ class _DashBoardWidgetState extends State<DashBoardWidget> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
                 activeIcon: Icon(Icons.search_rounded),
-                label: 'Library',
+                label: 'Search',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.bar_chart_outlined),

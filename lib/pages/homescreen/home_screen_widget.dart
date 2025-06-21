@@ -12,7 +12,8 @@ import 'package:license_entrance/utility/extension.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreenWidget extends StatefulWidget {
-  const HomeScreenWidget({super.key});
+  final bool isTimerEnabled;
+  const HomeScreenWidget({super.key, required this.isTimerEnabled});
 
   @override
   State<HomeScreenWidget> createState() => _HomeScreenWidgetState();
@@ -28,17 +29,21 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
   }
 
   void _startTimer({int? time}) async {
-    time ??= await SharedPref.getTime();
-    if (!mounted) return;
-    final provider = context.homeScreenProvider;
-    if (provider.remainingSeconds == time &&
-        !provider.isTimerRunning &&
-        !provider.isSubmitted) {
-      provider.startTimer(
-        onTimerComplete: () {
-          provider.submit(isSkillable: true, onScrollToTop: _scrollToTop);
-        },
-      );
+    if (widget.isTimerEnabled) {
+      time ??= await SharedPref.getTime();
+      if (!mounted) return;
+      final provider = context.homeScreenProvider;
+      // if (provider.isSubmitted) {
+      //   context.dataProvider.fetchData();
+      // }
+      await provider.updateRemainingSecondsFromSharedPref();
+      if (!provider.isTimerRunning && !provider.isSubmitted) {
+        provider.startTimer(
+          onTimerComplete: () {
+            provider.submit(isSkillable: true, onScrollToTop: _scrollToTop);
+          },
+        );
+      }
     }
   }
 
@@ -52,135 +57,143 @@ class _HomeScreenWidgetState extends State<HomeScreenWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return PageWrapper(
-      title: "Comp Engineering",
-      showAppBar: true,
-      body: Consumer2<DataProvider, HomeScreenProvider>(
-        builder: (context, dataProvider, homeScreenProvider, child) {
-          List<Widget> questionWidgets = [];
-          if (dataProvider.responseModel?.data != null) {
-            questionWidgets =
-                dataProvider.responseModel!.data.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  final datum = entry.value;
-                  RegExp regExp = RegExp(r'Q\d+:\s*(.*)');
-                  Match? match = regExp.firstMatch(datum.question);
-                  final question = match?.group(1) ?? '';
-                  return QuestionBlockWidget(
-                    options: datum.options,
-                    question: question,
-                    correctAnswer: datum.correctAnswer,
-                    isSubmitted: homeScreenProvider.isSubmitted,
-                    selectedAnswer: homeScreenProvider.selectedAnswers[index],
-                    onAnswerSelected:
-                        (value) => homeScreenProvider.updateSelectedAnswer(
-                          index,
-                          value,
-                        ),
-                  );
-                }).toList();
-          }
-          return dataProvider.isLoading
-              ? CommonLoadingWidget()
-              : dataProvider.isOffline
-              ? OfflinePage(
-                message: dataProvider.errorMessage.toString(),
-                onRefresh: () async {
-                  homeScreenProvider.resetTimer();
-                  _startTimer();
-                  final currentContext = context;
-                  if (currentContext.mounted) {
-                    dataProvider.fetchData();
-                  }
-                },
-              )
-              : Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        ...questionWidgets,
-                        SizedBox(height: 5),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(width: 5),
-                            Expanded(
-                              child: AppButtons(
-                                onClicked: () {
-                                  GlobalSnackbar.show(
-                                    "You are currently on page no: ${dataProvider.currentPageNo}",
-                                    backgroundColor: Colors.white,
-                                    textColor: Colors.black,
-                                  );
-                                },
-                                title: dataProvider.currentPageNo.toString(),
+    return PopScope(
+      onPopInvokedWithResult:
+          (didPop, result) => {
+            if (didPop) {context.homeScreenProvider.resetTimer()},
+          },
+
+      child: PageWrapper(
+        title: "Comp Engineering",
+        showAppBar: true,
+        body: Consumer2<DataProvider, HomeScreenProvider>(
+          builder: (context, dataProvider, homeScreenProvider, child) {
+            List<Widget> questionWidgets = [];
+            if (dataProvider.responseModel?.data != null) {
+              questionWidgets =
+                  dataProvider.responseModel!.data.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    final datum = entry.value;
+                    RegExp regExp = RegExp(r'Q\d+:\s*(.*)');
+                    Match? match = regExp.firstMatch(datum.question);
+                    final question = match?.group(1) ?? '';
+                    return QuestionBlockWidget(
+                      options: datum.options,
+                      question: question,
+                      correctAnswer: datum.correctAnswer,
+                      isSubmitted: homeScreenProvider.isSubmitted,
+                      selectedAnswer: homeScreenProvider.selectedAnswers[index],
+                      onAnswerSelected:
+                          (value) => homeScreenProvider.updateSelectedAnswer(
+                            index,
+                            value,
+                          ),
+                    );
+                  }).toList();
+            }
+            return dataProvider.isLoading
+                ? CommonLoadingWidget()
+                : dataProvider.isOffline
+                ? OfflinePage(
+                  message: dataProvider.errorMessage.toString(),
+                  onRefresh: () async {
+                    homeScreenProvider.resetTimer();
+                    _startTimer();
+                    final currentContext = context;
+                    if (currentContext.mounted) {
+                      dataProvider.fetchData();
+                    }
+                  },
+                )
+                : Stack(
+                  children: [
+                    SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          ...questionWidgets,
+                          SizedBox(height: 5),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 5),
+                              Expanded(
+                                child: AppButtons(
+                                  onClicked: () {
+                                    GlobalSnackbar.show(
+                                      "You are currently on page no: ${dataProvider.currentPageNo}",
+                                      backgroundColor: Colors.white,
+                                      textColor: Colors.black,
+                                    );
+                                  },
+                                  title: dataProvider.currentPageNo.toString(),
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 7),
-                            Expanded(
-                              flex: 4,
-                              child: AppButtons(
-                                title:
-                                    homeScreenProvider.isSubmitted
-                                        ? "Next Page"
-                                        : 'Submit',
-                                onClicked: () async {
-                                  if (homeScreenProvider.isSubmitted) {
-                                    final currentContext = context;
-                                    await SharedPref.setPageNumber(
-                                      dataProvider.currentPageNo + 1,
-                                    );
-                                    homeScreenProvider.resetState();
-                                    homeScreenProvider.resetTimer();
-                                    homeScreenProvider.startTimer(
-                                      onTimerComplete: () {
-                                        homeScreenProvider.submit(
-                                          isSkillable: true,
-                                          onScrollToTop: _scrollToTop,
-                                        );
-                                      },
-                                    );
-                                    if (currentContext.mounted) {
-                                      dataProvider.fetchData();
+                              SizedBox(width: 7),
+                              Expanded(
+                                flex: 4,
+                                child: AppButtons(
+                                  title:
+                                      homeScreenProvider.isSubmitted
+                                          ? "Next Page"
+                                          : 'Submit',
+                                  onClicked: () async {
+                                    if (homeScreenProvider.isSubmitted) {
+                                      final currentContext = context;
+                                      await SharedPref.setPageNumber(
+                                        dataProvider.currentPageNo + 1,
+                                      );
+                                      homeScreenProvider.resetState();
+                                      homeScreenProvider.resetTimer();
+                                      homeScreenProvider.startTimer(
+                                        onTimerComplete: () {
+                                          homeScreenProvider.submit(
+                                            isSkillable: true,
+                                            onScrollToTop: _scrollToTop,
+                                          );
+                                        },
+                                      );
+                                      if (currentContext.mounted) {
+                                        dataProvider.fetchData();
+                                      }
+                                    } else {
+                                      homeScreenProvider.submit(
+                                        onScrollToTop: _scrollToTop,
+                                      );
                                     }
-                                  } else {
-                                    homeScreenProvider.submit(
-                                      onScrollToTop: _scrollToTop,
-                                    );
-                                  }
-                                },
+                                  },
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 7),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: SafeArea(
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 40,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          homeScreenProvider.getFormattedTime(),
-                          style: TextStyle(color: Colors.black),
-                        ),
+                            ],
+                          ),
+                          SizedBox(height: 7),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              );
-        },
+                    if (widget.isTimerEnabled)
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: SafeArea(
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 40,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Text(
+                              homeScreenProvider.getFormattedTime(),
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+          },
+        ),
       ),
     );
   }

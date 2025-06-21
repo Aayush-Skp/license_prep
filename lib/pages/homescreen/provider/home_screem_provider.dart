@@ -8,7 +8,7 @@ import 'package:license_entrance/common/widgets/global_snackbar.dart';
 class HomeScreenProvider extends ChangeNotifier {
   final DataProvider dataProvider;
   HomeScreenProvider(this.dataProvider) {
-    _initializeRemainingSeconds();
+    _initializeTime();
   }
   late Timer _timer;
   int _remainingSeconds = 30;
@@ -16,11 +16,15 @@ class HomeScreenProvider extends ChangeNotifier {
   Function? _onTimerComplete;
   final Map<int, String?> selectedAnswers = {};
   bool isSubmitted = false;
-
   int get remainingSeconds => _remainingSeconds;
   bool get isTimerRunning => _isTimerRunning;
 
-  Future<void> _initializeRemainingSeconds() async {
+  Future<void> _initializeTime() async {
+    _remainingSeconds = await SharedPref.getTime();
+    notifyListeners();
+  }
+
+  Future<void> updateRemainingSecondsFromSharedPref() async {
     _remainingSeconds = await SharedPref.getTime();
     notifyListeners();
   }
@@ -136,7 +140,6 @@ class HomeScreenProvider extends ChangeNotifier {
       'score_percentage': (correctAnswers / totalQuestions * 100)
           .toStringAsFixed(2),
     };
-
     await SharedPref.setResults(result);
   }
 

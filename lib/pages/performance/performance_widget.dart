@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:license_entrance/app/theme.dart';
 import 'package:license_entrance/common/shared_pref/shared_pref.dart';
+import 'package:license_entrance/common/widgets/common_loading_widget.dart';
 import 'package:license_entrance/pages/performance/user_statistics_graph_widget.dart';
 
 class PerformanceWidget extends StatefulWidget {
@@ -30,9 +32,14 @@ class _PerformanceWidgetState extends State<PerformanceWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const SafeArea(child: Center(child: CircularProgressIndicator()));
+      return const SafeArea(child: Center(child: CommonLoadingWidget()));
     }
 
-    return SafeArea(child: UserStatisticsGraph(results: sampleResults));
+    return SafeArea(
+      child: Container(
+        color: CustomTheme.appBarColor,
+        child: UserStatisticsGraph(results: sampleResults),
+      ),
+    );
   }
 }
