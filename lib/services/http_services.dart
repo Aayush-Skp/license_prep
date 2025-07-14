@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HttpService {
-  // final String baseUrl = "https://question-server-orcin.vercel.app";
-  final String baseUrl = 'http://localhost:3000';
+  final String baseUrl = "https://question-server-orcin.vercel.app";
+  // final String baseUrl = 'http://localhost:3000';
 
   Future<Map<String, dynamic>> get({required String endpointUrl}) async {
     try {
